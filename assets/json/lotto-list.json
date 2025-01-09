@@ -1,0 +1,10 @@
+[
+    { "index": "teng_bon_1", "name": "วิ่งบน" },
+    { "index": "teng_bon_2", "name": "2 ตัวบน" },
+    { "index": "teng_bon_3", "name": "3 ตัวบน" },
+    { "index": "teng_lang_1", "name": "วิ่งล่าง" },
+    { "index": "teng_lang_2", "name": "2 ตัวล่าง" },
+    { "index": "teng_lang_3", "name": "3 ตัวหลังตรง (3 ตัวล่าง)" },
+    { "index": "teng_lang_nha_3", "name": "3 ตัวหน้าตรง (3 ตัวหน้า)" },
+    { "index": "tode_3", "name": "3 ตัวโต้ด" }
+]

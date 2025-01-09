@@ -1,0 +1,104 @@
+@media (min-width: 1920px) {
+  .v-container.main-container {
+      max-width: 1400px !important;
+  }
+}
+
+.text-mitr{
+  font-family: "mitr", sans-serif !important;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.text-mitr-400{
+  font-family: "mitr", sans-serif !important;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.lotto-list .v-card-item {
+  padding: 5px 13px;
+}
+
+.lotto-list .v-card-text {
+  padding: 10px;
+  padding-top: 0;
+}
+
+.lottery-bet-chips .v-slide-group__content {
+  justify-content: center;
+}
+
+.tab-chunk-100 .v-tab.v-tab.v-btn {
+  min-width: 80px;
+}
+
+h1, h2, h3 ,h4, h5, h6, button {
+  font-family: "mitr", sans-serif !important;
+  font-weight: 400;
+}
+.number-list-item .v-list-item .v-list-item-title {
+  font-weight: 600;
+}
+.row-chip-group-19 .v-slide-group {
+  width: 100%;
+}
+.col-chip .v-chip {
+  width: 100%;
+  margin: 0;
+  height: 36px;
+}
+.col-chip .v-chip__content {
+  margin: 0 auto;
+}
+
+#input-number::-webkit-outer-spin-button,
+#input-number::-webkit-inner-spin-button,
+#on-number::-webkit-outer-spin-button,
+#on-number::-webkit-inner-spin-button,
+#bottom-number::-webkit-outer-spin-button,
+#bottom-number::-webkit-inner-spin-button,
+#tod-number::-webkit-outer-spin-button,
+#tod-number::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.bill-table .v-data-table-header__content span {
+  font-family: "mitr", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+.bill-table thead {
+  background-color: #eee;
+}
+.helper-number-list .v-slide-group__content {
+  justify-content: center;
+}
+
+.user-list-leftbar .v-list-item .v-list-item__prepend{
+  width: 30px;
+}
+.user-actions .v-btn__prepend {
+  margin-right: 0;
+}
+.web-logo-default .v-responsive.v-img {
+  margin: 0 auto;
+  width: 100% !important;
+  padding: 0 40px;
+}
+
+.v-main-style {
+  min-height: 80vh;
+}
+
+.text-danger {
+  color: #dd0000;
+}
+.main-menu-desktop .v-list-item__prepend > .v-icon ~ .v-list-item__spacer{
+  width: 5px;
+}
+/* nav.v-navigation-drawer.nav-on-mobile {
+  width: 100% !important;
+  padding: 20px;
+  position: fixed !important;
+} */

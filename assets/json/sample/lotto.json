@@ -1,0 +1,20 @@
+[
+    {
+        "amount": 5,
+        "betTagId": "teng_bon_2",
+        "numbers": "87",
+        "payout": 450,
+        "predict": 90,
+        "status": "1",
+        "winloss": null
+    },
+    {
+        "amount": 5,
+        "betTagId": "teng_bon_2",
+        "numbers": "55",
+        "payout": 450,
+        "predict": 90,
+        "status": "2",
+        "winloss": null
+    }
+]

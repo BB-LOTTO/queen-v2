@@ -1,0 +1,713 @@
+<template>
+    <NuxtLayout name="header">
+        <template #sub-title>
+            งวดวันที่ {{ $dateFormat(lotto_date) }} 
+            <span v-if="lotto_status === 1">
+                ปิดรับ {{ lotto_time }}
+            </span>
+            <span v-else>ปิดรับแล้ว</span>
+        </template>
+        <template #title>{{ route.params.title }}</template>
+    </NuxtLayout>
+    <v-container class="mt-n10 main-container">
+        <v-row>
+            <v-col cols="3" class="d-none d-lg-block">
+                <SideBarTradeLeftBar/>
+            </v-col>
+            <v-col cols="12" lg="9">
+                <v-row>
+                    <v-col cols="12 mb-6">
+                        <v-card
+                            variant="flat"
+                            class="rounded-xl"
+                        >
+                            <template v-slot:title>
+                                <v-tabs
+                                    v-model="tab"
+                                    color="#c6137f"
+                                    show-arrows
+                                >
+                                    <v-tab :value="1">สองตัว</v-tab>
+                                    <v-tab :value="2">สามตัว</v-tab>
+                                    <v-tab :value="3">เลขวิ่ง</v-tab>
+                                    <v-tab :value="4">19 ประตู</v-tab>
+                                    <v-tab :value="5">6 กลับ</v-tab>
+                                    <v-tab :value="6">ตัวช่วย</v-tab>
+                                </v-tabs>
+                            </template>
+
+                            <template v-slot:text>
+                                <v-window v-model="tab">
+                                    <v-window-item :value="1"
+                                        class="mt-3"
+                                    >
+                                        <LotteryTradeSelect
+                                            type="2 ตัว"
+                                            :betLimit="lottoList"
+                                            @to-add-number="addNumber"
+                                            @someting-wrong="setSnackBar"
+                                        >
+                                        </LotteryTradeSelect>
+                                    </v-window-item>
+                                    <v-window-item :value="2"
+                                        class="mt-3 px-5"
+                                    >
+                                        <LotteryTradeSelect
+                                            type="3 ตัว"
+                                            :betLimit="lottoList"
+                                            @to-add-number="addNumber"
+                                            @someting-wrong="setSnackBar"
+                                        >
+                                        </LotteryTradeSelect>
+                                    </v-window-item>
+                                    <v-window-item :value="3"
+                                        class="mt-3 px-5"
+                                    >
+                                        <LotteryTradeSelect
+                                            type="วิ่ง"
+                                            :betLimit="lottoList"
+                                            @to-add-number="addNumber"
+                                            @someting-wrong="setSnackBar"
+                                        >
+                                        </LotteryTradeSelect>
+                                    </v-window-item>
+                                    <v-window-item :value="4"
+                                        class="mt-3 px-5"
+                                    >
+                                        <LotteryTradeSelect
+                                            type="19 ประตู"
+                                            :betLimit="lottoList"
+                                            @to-add-number="addNumber"
+                                            @someting-wrong="setSnackBar"
+                                        >
+                                        </LotteryTradeSelect>
+                                    </v-window-item>
+                                    <v-window-item :value="5"
+                                        class="mt-3 px-5"
+                                    >
+                                        <LotteryTradeSelect
+                                            type="6 กลับ"
+                                            :betLimit="lottoList"
+                                            @to-add-number="addNumber"
+                                            @someting-wrong="setSnackBar"
+                                        >
+                                        </LotteryTradeSelect>
+                                    </v-window-item>
+                                    <v-window-item :value="6"
+                                        class="mt-3 px-5"
+                                    >
+                                        <LotteryTradeHelper
+                                            :betLimit="lottoList"
+                                            @to-add-poy="addPoyNumber"
+                                            @someting-wrong="setSnackBar"
+                                        ></LotteryTradeHelper>
+                                    </v-window-item>
+                                </v-window>
+
+                                <v-card variant="tonal" color="light-blue-darken-3 mb-5">
+                                    <template v-slot:title>
+                                        <v-row>
+                                            <v-col cols="6">
+                                                <h3>{{ route.params.title }}</h3>
+                                            </v-col>
+                                            <v-col cols="6" class="text-end">
+                                                <h6>งวดวันที่ {{ lotto_date }}</h6>
+                                            </v-col>
+                                        </v-row>
+                                        <v-divider></v-divider>
+                                    </template>
+                                    
+                                    <template v-slot:text style="min-height: 200px;">
+                                        <div v-for="(item, i) in numberSelected" class="number-selected-list px-3 mb-5">
+                                            <div class="number-selected-header mb-1">
+                                                <span class="me-3 text-medium-emphasis">{{ item.type }} {{ item.trade }}</span>
+                                                <v-btn 
+                                                    density="compact"
+                                                    size="small" 
+                                                    color="red-accent-4" 
+                                                    icon="mdi-close"
+                                                    @click="removeNumberSelected(i)"
+                                                ></v-btn>
+                                            </div>
+                                            <div class="number-list-item d-flex flex-wrap">
+                                                <div v-for="(number, k) in item.numbers" class="number-selected">
+                                                    <span v-html="isNumberLimit(number, item.bet)" 
+                                                        class="me-5 text-subtitle-1 font-weight-bold text-high-emphasis">
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+
+                                    <v-divider></v-divider>
+                                    <template v-slot:actions>
+                                        <v-row>
+                                            <v-col cols="6">
+                                                <p class="text-mitr-400">ยอดรวม</p>
+                                            </v-col>
+                                            <v-col cols="6" class="text-end">
+                                                <p class="text-mitr-400">{{ sumPrice }} ฿</p>
+                                            </v-col>
+                                        </v-row>
+                                    </template>
+                                </v-card>
+
+                                <v-sheet class="text-center">
+                                    <v-form>
+                                        <v-text-field
+                                            density="compact"
+                                            variant="outlined"
+                                            v-model="note"
+                                            label="note"
+                                        ></v-text-field>
+                                        <v-btn 
+                                            v-if="!sending" 
+                                            :disabled="numberSelected.length === 0 && lotto_status !== '1'"
+                                            prepend-icon="mdi-invoice-text-send-outline" 
+                                            color="orange-darken-1" 
+                                            @click="sendPoy"
+                                        >
+                                            ส่งโพย
+                                        </v-btn>
+                                        <v-progress-circular
+                                            v-else
+                                            color="pink-darken-3"
+                                            indeterminate
+                                        ></v-progress-circular>
+                                    </v-form>
+                                </v-sheet>
+                            </template>
+                        </v-card>
+                    </v-col>
+
+                    <v-col cols="12">
+                        <v-row>
+                            <v-col cols="12" lg="6" class="pb-0">
+                                <v-card
+                                    variant="flat"
+                                    class="mb-4 rounded-xl"
+                                >
+                                    <template v-slot:title>
+                                        <h6>
+                                            <v-icon icon="mdi-lock-alert-outline"></v-icon>
+                                            รายการตัด-อั้น
+                                        </h6>
+                                    </template>
+
+                                    <template v-slot:text>
+                                        <LotteryTradeNumberLimit
+                                            :number="numberLimit"
+                                            :lotto="lottoList"
+                                        ></LotteryTradeNumberLimit>
+                                    </template>
+                                </v-card>
+
+                                <v-card
+                                    v-if="_result"
+                                    variant="flat"
+                                    class="mb-4 rounded-xl"
+                                >
+                                    <template v-slot:title>
+                                        <h6>
+                                            <v-icon icon="mdi-chart-line"></v-icon>
+                                            ประกาศผลงวดประจำวันที่ {{ $dateFormat(lotto_date) }}
+                                        </h6>
+                                    </template>
+
+                                    <template v-slot:text>
+                                        <LotteryTradeResultRound
+                                            :result="lottoResult"
+                                        ></LotteryTradeResultRound>
+                                    </template>
+                                </v-card>
+                            </v-col>
+                            <v-col cols="12" lg="6">
+                                <v-card
+                                    variant="flat"
+                                    class="mb-4 rounded-xl d-none"
+                                >
+                                    <template v-slot:title>
+                                        <h6>
+                                            <v-icon icon="mdi-invoice-list-outline"></v-icon>
+                                            รายการบิลล่าสุด ( {{ perPage }} รายการล่าสุด )
+                                        </h6>
+                                    </template>
+
+                                    <template v-slot:text>
+                                        <HistoryLastBill
+                                            :username="username"
+                                            :lotto="lottoList"
+                                            :perPage="perPage"
+                                            @someting-wrong="setSnackBar"
+                                            ref="billReload"
+                                        ></HistoryLastBill>
+                                    </template>
+                                </v-card>
+
+                                <v-card
+                                    variant="flat"
+                                    class="mb-4 rounded-xl"
+                                >
+                                    <template v-slot:title>
+                                        <h6>
+                                            <v-icon icon="mdi-star-outline"></v-icon>
+                                            อัตราจ่าย
+                                        </h6>
+                                    </template>
+
+                                    <template v-slot:text>
+                                        <LotteryTradeBetLimit
+                                            :lottoList="lottoList"
+                                        >
+                                        </LotteryTradeBetLimit>
+                                    </template>
+                                </v-card>
+                            </v-col>
+                        </v-row>
+                    </v-col>
+                </v-row>
+            </v-col>
+        </v-row>
+
+        <v-snackbar
+            :timeout="4000"
+            :color="_snackbar.color"
+            elevation="24"
+            location="center top"
+            v-model="_snackbar.status"
+        >
+            <span class="text-light">{{ _snackbar.message }}</span>
+        </v-snackbar>
+
+        <v-dialog
+            v-model="dialog.status"
+            width="auto"
+        >
+            <v-card
+                max-width="400"
+                :prepend-icon="dialog.icon"
+                :text="dialog.text"
+                :title="dialog.title"
+            >
+                <template v-slot:prepend>
+                    <div class="pe-4">
+                        <v-icon :color="dialog.icolor" size="x-large"></v-icon>
+                    </div>
+                </template>
+                <template v-slot:actions>
+                    <v-btn
+                        class="ms-auto"
+                        text="Ok"
+                        @click="dialog.status = false"
+                    ></v-btn>
+                </template>
+            </v-card>
+        </v-dialog>
+    </v-container>
+    
+</template>
+
+<script setup>
+definePageMeta({
+    middleware: 'auth'
+})
+
+const { data } = useAuth()
+const route = useRoute()
+
+const tab = ref()
+const numberSelected = ref([])
+const note = ref('')
+const lottoList = ref([])
+const numberLimit = ref([])
+const username = data.value.user.username
+const sending = ref(false)
+const _snackbar = ref({status: false, message: '', color: ''})
+const perPage = ref(10)
+const discount = ref([0])
+const lotto_date = useCookie('lotto_date')
+const lotto_time = useCookie('lotto_time')
+const lotto_status = useCookie('l_s')
+const billReload = ref(null)
+const dialog = ref({status: false, icon: '', icolor: '', title: '', text: ''})
+const lottoResult = ref([])
+const _result = ref(false)
+
+const sumPrice = computed(() => {
+    let sum = 0
+    let _discount = discount.value.reduce((a,b) => { return a + b })
+    numberSelected.value.forEach(item => { sum += parseInt(item.price) })
+    return sum - _discount
+})
+
+onMounted(() => {
+    getBetRound()
+    getNumberLimit()
+    getRoundResult()
+})
+
+function addNumber(numbers, number_on, number_bottom, type) {
+    if(numbers.length > 0) {
+        if(number_on !== '' || number_bottom !== '') {
+            const result = checkTrade(numbers, number_on, number_bottom, type)
+            const _type = checkType(type)
+
+            result.forEach(_result => {
+                const nsi = numberSelected.value.findIndex(item => { return item.type === _type && item.trade === _result.name })
+                if(nsi >= 0) {
+                    const _numbers = [...numberSelected.value[nsi].numbers, ...numbers]
+                    const setNewNumbers = _numbers.filter((item, index) => _numbers.indexOf(item) === index);
+                    const _price = parseInt(number_on !== '' ? number_on : 0) + parseInt(number_bottom !== '' ? number_bottom : 0)
+                    numberSelected.value[nsi].numbers = setNewNumbers.sort()
+                    numberSelected.value[nsi].price = _price * setNewNumbers.length
+
+                    // let inx = numberSelected.value[nsi].numbers.findIndex(n => { return n === num })
+                    // numbers.forEach(num => { numberSelected.value[nsi].numbers.push(num) })
+                }
+                else {
+                    numberSelected.value.push({
+                        numbers: numbers,
+                        type: _type,
+                        trade: _result.name,
+                        price: _result.price,
+                        bet: convertPoyType(_type, _result.id, number_on, number_bottom),
+                    })
+
+                    setNumberLimit()
+                }
+
+                discount.value = [0]
+            })
+        }
+        else console.log('underfined')
+    }
+    else console.log('number length')
+}
+
+function removeNumberSelected(index) {
+    discount.value = [0]
+    numberSelected.value.splice(index, 1)
+}
+
+function setNumberLimit() {
+    const Indx = numberSelected.value.findIndex(num => { return num.limit === undefined })
+    let _numberSelected = numberSelected.value[Indx]
+    _numberSelected.bet.forEach(bet => {
+        let nbLimit = setTypeLimit(bet.name)
+        if(nbLimit) {
+            let limit = checkNumberLimit(_numberSelected.numbers, nbLimit)
+            _numberSelected.limit = limit
+        }
+        else _numberSelected.limit = []
+    })
+}
+
+function setTypeLimit(type) {
+    const number = Object.entries(numberLimit.value)
+    const result = number.find(item => { return item[0] === type })
+    if(result) return result
+    return false
+}
+
+function checkNumberLimit(number, nbLimit) {
+    let _limit = []
+    number.forEach(num => {
+        const getLimit = nbLimit[1].find(l => { return num === l.number })
+        if(getLimit) _limit.push({ limit: getLimit.number, type: getLimit.type })
+    })
+    return _limit
+    // const getNumber = number.find(num => { return num === nbLimit[1].number })
+    // if(getNumber) return [{ limit: nbLimit[1].number, type: nbLimit[1].type }]
+    // else return []
+}
+
+function setTypeLimit_v2(type, number) {
+    const _number = Object.entries(numberLimit.value)
+    const result = _number.find(item => { return item[0] === type && item[1].find(_n => { return _n.number === number }) })
+    if(result) return result[1].find(r => { return r.number === number })
+    return false
+}
+
+const isNumberLimit = (number, bet) => {
+    let _bType = ''
+    let _bet = []
+    bet.forEach(b => {
+        let result = setTypeLimit_v2(b.name, number)
+        if(_bType === '' && result) {
+            _bType = result
+            _bet = b
+        }
+    })
+
+    if(_bType !== '') {
+        if(number === _bType.number) {
+            if(_bType.type === 2) discount.value.push(parseInt(_bet.price))
+            return _bType.type === 2 ? 
+                    `<s class="text-num-close">${number}</s>` : 
+                    `<u class="text-num-half">${number}</u>`
+        }
+        else return number
+    }
+    else return number
+}
+
+function checkTrade(numbers, on, bottom, type) {
+    let _trade = []
+    // let trade = ''
+    // let price = 0
+    let _type = type === '3 ตัว' ? 'โต๊ด' : 'ล่าง'
+
+    if(on !== '') {
+        _trade.push({ id: 'บน', name: `บน x ${on}`, price: numbers.length * parseInt(on) })
+    }
+    if(bottom !== '') {
+        _trade.push({ id: 'ล่าง', name: `${_type} x ${bottom}`, price: numbers.length * parseInt(bottom) })
+    }
+
+    // if(on !== '' && bottom !== '') {
+    //     trade = `บน x ${_type} : ${on} x ${bottom}`
+    //     let sum = parseInt(on) + parseInt(bottom)
+    //     price = numbers.length * sum
+    // }
+    // if(on !== '' && bottom === '') {
+    //     trade = `บน : ${on}`
+    //     price = numbers.length * parseInt(on)
+    // }
+    // if(on === '' && bottom !== '') {
+    //     trade = `${_type} : ${bottom}`
+    //     price = numbers.length * parseInt(bottom)
+    // }
+
+    // console.log(_trade)
+
+    // return Array(trade, price)
+    return _trade
+}
+
+function checkType(type) {
+    if(type === '19 ประตู') return '2 ตัว'
+    if(type === '6 กลับ') return '3 ตัว'
+    else return type
+}
+
+function checkBalanceSupport() {
+    const balance = data.value.user.userFunds.balance
+    return sumPrice.value <= balance ? true : false
+}
+
+async function sendPoy() {
+    sending.value = true
+    if(checkBalanceSupport()) {
+        try {
+            const res = await $fetch('/api/lottery/sendPoy', {
+                method: 'POST',
+                body: {
+                    'username': username,
+                    'roundId': route.params.round,
+                    'poyList': setPoyList()
+                }
+            })
+
+            if(res.status === 'OK') {
+                setDialog('mdi-check-circle-outline', 'green-accent-4', 'ทำรายการสำเร็จ', 'ส่งโพยของคุณเรียบร้อยแล้ว...ขอให้โชคดี!')
+                numberSelected.value = []
+                billReload.value.getBill()
+                discount.value = [0]
+            }
+            else {
+                setSnackBar('red-accent-4', 'เกิดข้อผิดพลาด กรุณาลองใหม่...')
+            }
+        }
+        catch (error) {
+            console.log(error)
+            setSnackBar('red-accent-4', 'เกิดข้อผิดพลาด กรุณาลองใหม่...')
+        }
+    }
+    else setSnackBar('red-accent-4', 'ยอดเงินของคุณไม่พอ...')
+
+    sending.value = false
+}
+
+function setPoyList() {
+    let poylist = []
+    numberSelected.value.forEach(item => {
+        item.numbers.forEach(num => {
+            let limit = item.limit.length > 0 ? item.limit.findIndex(l => { return l.limit === num && l.type === 2}) : -1
+            if(limit < 0) {
+                item.bet.forEach(bet => {
+                    poylist.push({
+                        name: bet.name,
+                        number: num,
+                        multiply: bet.multiply,
+                        price: bet.price
+                    })
+                })
+            }
+        })
+    })
+
+    const poyGroup = poylist.reduce((group, poy) => {
+        const { name } = poy
+        group[name] = group[name] ?? []
+        group[name].push(poy)
+        return group
+    }, {})
+
+    return poyGroup
+}
+
+
+function convertPoyType(type, id, on, bottom) {
+    const lotto = lottoList.value
+    if(type === 'วิ่ง') {
+        if(on !== '' && id === 'บน') return [{ name: 'teng_bon_1',  multiply: lotto.teng_bon_1.multiply, price: on }]
+        if(bottom !== '' && id === 'ล่าง') return [{ name: 'teng_lang_1', multiply: lotto.teng_lang_1.multiply, price: bottom }]
+
+        // if(on !== '' && bottom !== '') {
+        //     return [
+        //         { name: 'teng_bon_1',  multiply: lotto.teng_bon_1.multiply, price: on },
+        //         { name: 'teng_lang_1', multiply: lotto.teng_lang_1.multiply, price: bottom }
+        //     ]
+        // }
+        // else {
+        //     if(on !== '') return [{ name: 'teng_bon_1',  multiply: lotto.teng_bon_1.multiply, price: on }]
+        //     if(bottom !== '') return [{ name: 'teng_lang_1', multiply: lotto.teng_lang_1.multiply, price: bottom }]
+        // }
+        
+    }
+
+    if(type === '2 ตัว') {
+        if(on !== '' && id === 'บน') return [{ name: 'teng_bon_2', multiply: lotto.teng_bon_2.multiply, price: on }]
+        if(bottom !== '' && id === 'ล่าง') return [{ name: 'teng_lang_2', multiply: lotto.teng_lang_2.multiply, price: bottom }]
+
+        // if(on !== '' && bottom !== '') {
+        //     return [
+        //         { name: 'teng_bon_2', multiply: lotto.teng_bon_2.multiply, price: on },
+        //         { name: 'teng_lang_2', multiply: lotto.teng_lang_2.multiply, price: bottom }
+        //     ]
+        // }
+        // else {
+        //     if(on !== '') return [{ name: 'teng_bon_2', multiply: lotto.teng_bon_2.multiply, price: on }]
+        //     if(bottom !== '') return [{ name: 'teng_lang_2', multiply: lotto.teng_lang_2.multiply, price: bottom }]
+        // }
+    }
+
+    if(type === '3 ตัว') {
+        if(on !== '' && id === 'บน') return [{ name: 'teng_bon_3', multiply: lotto.teng_bon_3.multiply, price: on }]
+        if(bottom !== '' && id === 'ล่าง') return [{ name: 'tode_3', multiply: lotto.tode_3.multiply, price: bottom }]
+        // if(on !== '' && bottom !== '') {
+        //     return [
+        //         { name: 'teng_bon_3', multiply: lotto.teng_bon_3.multiply, price: on },
+        //         { name: 'tode_3', multiply: lotto.tode_3.multiply, price: bottom }
+        //     ]
+        // }
+        // else {
+        //     if(on !== '') return [{ name: 'teng_bon_3', multiply: lotto.teng_bon_3.multiply, price: on }]
+        //     if(bottom !== '') return [{ name: 'tode_3', multiply: lotto.tode_3.multiply, price: bottom }]
+        // }
+    }
+
+    // miss ---------
+    // "3 ตัวหลังตรง (3 ตัวล่าง)" teng_lang_3
+    // "3 ตัวหน้าตรง (3 ตัวหน้า)" teng_lang_nha_3
+}
+
+function addPoyNumber(numbers, on, bottom, tod) {
+    let _numbers = { one: [], two: [], three: [] }
+    numbers.forEach(n => {
+        if(n.length === 1) _numbers.one.push(n)
+        if(n.length === 2) _numbers.two.push(n)
+        if(n.length === 3) _numbers.three.push(n)
+    })
+
+    if(_numbers.one.length > 0) addNumber(_numbers.one, on, bottom, 'วิ่ง')
+    if(_numbers.two.length > 0) addNumber(_numbers.two, on, bottom, '2 ตัว')
+    if(_numbers.three.length > 0) addNumber(_numbers.three, on, tod, '3 ตัว')
+}
+
+async function getBetRound() {
+    try {
+        const res = await $fetch('/api/lottery/roundList', {
+            method: 'POST',
+            body: {
+                "username": username,
+                "lotteryId": route.params.lotto,
+                "roundId": route.params.round
+            }
+        })
+
+        lottoList.value = res.data.datas
+    } catch(error) {
+        console.log(error)
+    }
+}
+
+async function getNumberLimit() {
+    try {
+        const res = await $fetch('/api/lottery/numberLimit', {
+            method: 'POST',
+            body: {
+                "username": username,
+                "roundId": route.params.round
+            }
+        })
+
+        if(res.data) numberLimit.value = res.data
+        else numberLimit.value = []
+    } catch(error) {
+        console.log(error)
+    }
+}
+
+async function getRoundResult() {
+    try {
+        const res = await $fetch('/api/lottery/resultRoundList', {
+            query: {
+                "lotteryId": route.params.lotto,
+                "roundId": route.params.round
+            }
+        })
+        
+        // console.log(res)
+        if(res.status === 'OK') {
+            lottoResult.value = res.data.datas
+            _result.value = true
+        }
+        else {
+            lottoResult.value = []
+            _result.value = false
+        }
+    } catch(error) {
+        console.log(error)
+    }
+}
+
+function setSnackBar(color, message) {
+    _snackbar.value.status = true
+    _snackbar.value.color = color
+    _snackbar.value.message = message
+
+    setTimeout(() => { _snackbar.value.status = false }, 4500)
+}
+
+function setDialog(icon, icolor, title, text) {
+    dialog.value.status = true
+    dialog.value.icon = icon
+    dialog.value.icolor = icolor
+    dialog.value.title = title
+    dialog.value.text = text
+}
+</script>
+
+
+<style>
+.text-num-close {
+    color: #E53935;
+}
+.text-num-half {
+    color: #AA00FF;
+}
+.bill-table .v-data-table-footer {
+  display: none;
+}
+</style>
