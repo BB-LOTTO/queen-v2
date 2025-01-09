@@ -165,7 +165,7 @@
                                             :disabled="numberSelected.length === 0 && lotto_status !== '1'"
                                             prepend-icon="mdi-invoice-text-send-outline" 
                                             color="orange-darken-1" 
-                                            @click="sendPoy"
+                                            @click="checkout = true"
                                         >
                                             ส่งโพย
                                         </v-btn>
@@ -303,6 +303,99 @@
                 </template>
             </v-card>
         </v-dialog>
+
+        <v-dialog
+            v-model="checkout"
+            max-width="400"
+            persistent
+        >
+            <template v-slot:activator="{ props: activatorProps }">
+                <v-btn v-bind="activatorProps">
+                    ยืนยันการส่งโพย
+                </v-btn>
+            </template>
+
+            <v-card
+                prepend-icon="mdi-check-circle-outline"
+            >
+                <template v-slot:title>
+                    <h4 class="text-h5">ยืนยันการส่งโพย</h4>
+                </template>
+                <template v-slot:text>
+                    <v-row>
+                        <v-col cols="12" class="px-3">
+                            <h6 class="text-h6">เลขที่คุณเลือก</h6>
+                            <v-list lines="one" class="pt-0 border rounded px-5">
+                                <v-list-item
+                                    v-for="n in numberSelected"
+                                    class="border-b"
+                                >
+                                    <template v-slot:title>
+                                        <p class="text-subtitle-1 font-weight-bold">{{ n.type }}{{ n.trade.split('x')[0] }}</p>
+                                    </template>
+                                    <template v-slot:subtitle>
+                                        <div class="d-flex justify-space-between align-center">
+                                            <div class="is-number-selected" style="max-width: 78.5%;">
+                                                <span v-for="number in n.numbers" class="me-3">
+                                                    <strong class="font-weight-bold text-subtitle-2 text-green-darken-4">{{ number }}</strong>
+                                                </span>
+                                            </div>
+                                            <span class="text-caption">x{{ n.trade.split('x')[1] }} ฿</span>
+                                        </div>
+                                    </template>
+                                </v-list-item>
+                            </v-list>
+                        </v-col>
+
+                        <v-col cols="12">
+                            <v-card>
+                                <v-card-item>
+                                    <v-card-title>
+                                        <h6 class="text-h6">สรุป</h6>
+                                    </v-card-title>
+                                    <v-card-subtitle>รายละเอียด</v-card-subtitle>
+                                </v-card-item>
+
+                                <v-card-text>
+                                    <div class="d-flex justify-space-between">
+                                        <p>ยอดเงินของคุณ</p>
+                                        <p>
+                                            <small class="font-weight-bold">{{ $numberFormat(data.user.userFunds.balance) }}</small> ฿
+                                        </p>
+                                    </div>
+                                    <div class="d-flex justify-space-between border-b mb-1 pb-1">
+                                        <p>ยอดรวมโพย</p>
+                                        <p>
+                                            <small class="font-weight-bold">{{ $numberFormat(sumPrice) }}</small> ฿
+                                        </p>
+                                    </div>
+                                    <div class="d-flex justify-space-between">
+                                        <p>ยอดเงินคงเหลือ</p>
+                                        <p>
+                                            <small class="font-weight-bold">{{ $numberFormat(amountSummary(data.user.userFunds.balance, sumPrice)) }}</small> ฿
+                                        </p>
+                                    </div>
+                                </v-card-text>
+                            </v-card>
+                        </v-col>
+                    </v-row>
+                </template>
+
+                <br/>
+
+                <template v-slot:actions>
+                    <v-divider></v-divider>
+
+                    <v-btn @click="checkout = false">
+                        <span class="text-danger">ยกเลิก</span>
+                    </v-btn>
+
+                    <v-btn @click="sendPoy">
+                        ยืนยัน
+                    </v-btn>
+                </template>
+            </v-card>
+        </v-dialog>
     </v-container>
     
 </template>
@@ -332,6 +425,7 @@ const billReload = ref(null)
 const dialog = ref({status: false, icon: '', icolor: '', title: '', text: ''})
 const lottoResult = ref([])
 const _result = ref(false)
+const checkout = ref(false)
 
 const sumPrice = computed(() => {
     let sum = 0
@@ -449,6 +543,10 @@ const isNumberLimit = (number, bet) => {
         else return number
     }
     else return number
+}
+
+const amountSummary = (balance, total) => {
+    return parseFloat(balance) - parseFloat(total)
 }
 
 function checkTrade(numbers, on, bottom, type) {
