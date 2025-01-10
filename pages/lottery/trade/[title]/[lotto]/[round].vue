@@ -309,12 +309,6 @@
             max-width="400"
             persistent
         >
-            <template v-slot:activator="{ props: activatorProps }">
-                <v-btn v-bind="activatorProps">
-                    ยืนยันการส่งโพย
-                </v-btn>
-            </template>
-
             <v-card
                 prepend-icon="mdi-check-circle-outline"
             >
@@ -360,7 +354,7 @@
                                     <div class="d-flex justify-space-between">
                                         <p>ยอดเงินของคุณ</p>
                                         <p>
-                                            <small class="font-weight-bold">{{ $numberFormat(data.user.userFunds.balance) }}</small> ฿
+                                            <small class="font-weight-bold">{{ $numberFormat(_balance) }}</small> ฿
                                         </p>
                                     </div>
                                     <div class="d-flex justify-space-between border-b mb-1 pb-1">
@@ -372,7 +366,7 @@
                                     <div class="d-flex justify-space-between">
                                         <p>ยอดเงินคงเหลือ</p>
                                         <p>
-                                            <small class="font-weight-bold">{{ $numberFormat(amountSummary(data.user.userFunds.balance, sumPrice)) }}</small> ฿
+                                            <small class="font-weight-bold">{{ $numberFormat(amountSummary(_balance, sumPrice)) }}</small> ฿
                                         </p>
                                     </div>
                                 </v-card-text>
@@ -426,6 +420,12 @@ const dialog = ref({status: false, icon: '', icolor: '', title: '', text: ''})
 const lottoResult = ref([])
 const _result = ref(false)
 const checkout = ref(false)
+const _balance = ref(await useBalance(username))
+
+// setInterval(async() => {
+//     _balance.value = await useBalance(username)
+//     console.log(_balance.value)
+// }, 5000)
 
 const sumPrice = computed(() => {
     let sum = 0
@@ -588,8 +588,8 @@ function checkType(type) {
     else return type
 }
 
-function checkBalanceSupport() {
-    const balance = data.value.user.userFunds.balance
+async function checkBalanceSupport() {
+    const balance = await useBalance(username)
     return sumPrice.value <= balance ? true : false
 }
 

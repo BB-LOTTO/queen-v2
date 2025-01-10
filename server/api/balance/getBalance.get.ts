@@ -2,18 +2,19 @@ import setHeader from "~/server/utils/header";
 
 export default defineEventHandler(async(event) => {
     const _header = await setHeader(event)
+    const query = getQuery(event)
 
     try {
-        const response:any = await $fetch('/queen/cardList', {
+        const response:any = await $fetch(`/queen/getBalance?username=${query.user}`, {
             baseURL: useRuntimeConfig().apiBase,
             headers: _header
         })
 
         return response
-    } catch (error) {
+    } catch(err) {
         throw createError({
             statusCode: 500,
-            statusMessage: 'Server Error.'
+            statusMessage: `Server Error. ${err}`
         })
     }
 })
