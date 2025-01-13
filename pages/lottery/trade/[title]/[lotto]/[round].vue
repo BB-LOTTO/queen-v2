@@ -319,9 +319,9 @@
                     <v-row>
                         <v-col cols="12" class="px-3">
                             <h6 class="text-h6">เลขที่คุณเลือก</h6>
-                            <v-list lines="one" class="pt-0 border rounded px-5">
+                            <v-list lines="one" class="pt-0 border rounded px-1">
                                 <v-list-item
-                                    v-for="n in numberSelected"
+                                    v-for="(n, k) in numberSelected"
                                     class="border-b"
                                 >
                                     <template v-slot:title>
@@ -329,12 +329,61 @@
                                     </template>
                                     <template v-slot:subtitle>
                                         <div class="d-flex justify-space-between align-center">
-                                            <div class="is-number-selected" style="max-width: 78.5%;">
+                                            <div class="is-number-selected" style="max-width: 60%;">
                                                 <span v-for="number in n.numbers" class="me-3">
                                                     <strong class="font-weight-bold text-subtitle-2 text-green-darken-4">{{ number }}</strong>
                                                 </span>
                                             </div>
-                                            <span class="text-caption">x{{ n.trade.split('x')[1] }} ฿</span>
+                                            <span class="text-caption">
+                                                x{{ n.bet[0].price }} ฿
+                                                <v-tooltip
+                                                    location="top"
+                                                >
+                                                    <template v-slot:activator="{ props }">
+                                                        <v-icon v-bind="props" 
+                                                            icon="mdi-pencil-box-outline"
+                                                            class="text-orange-darken-4 cursor-pointer"
+                                                        >
+                                                        </v-icon>
+                                                        <v-menu
+                                                            activator="parent"
+                                                            location="bottom end"
+                                                            transition="fade-transition"
+                                                            :close-on-content-click="false"
+                                                        >
+                                                            <v-card min-width="260" min-height="60" class="pt-2">
+                                                                <v-responsive
+                                                                    class="mx-auto"
+                                                                    max-width="200"
+                                                                >
+                                                                    <v-text-field
+                                                                        density="compact"
+                                                                        variant="outlined"
+                                                                        hide-details="auto"
+                                                                        type="number"
+                                                                        label="ราคา"
+                                                                        hide-spin-buttons
+                                                                        :model-value="n.bet[0].price"
+                                                                        :id="`_input-${k}`"
+                                                                        autofocus
+                                                                        class="py-1"
+                                                                    >
+                                                                        <template v-slot:append>
+                                                                            <v-btn variant="outlined" size="small" prepend-icon="mdi-checkbox-outline" @click="checkoutEdit(k)">
+                                                                                <template v-slot:prepend>
+                                                                                    <v-icon color="success"></v-icon>
+                                                                                </template>
+                                                                                แก้ไข
+                                                                            </v-btn>
+                                                                        </template>
+                                                                    </v-text-field>
+                                                                </v-responsive>
+                                                            </v-card>
+                                                        </v-menu>
+                                                    </template>
+                                                    <span>แก้ไขยอดแทง</span>
+                                                </v-tooltip>
+                                            </span>
                                         </div>
                                     </template>
                                 </v-list-item>
@@ -522,6 +571,16 @@ function setTypeLimit_v2(type, number) {
     return false
 }
 
+function checkoutEdit(key) {
+    const input = document.querySelector(`#_input-${key}`)
+    const number = numberSelected.value[key]
+    let newPrice = number.bet[0].price = input.value
+    let _sumPrice = number.numbers.length * newPrice
+    
+    number.trade = `${number.trade.split('x')[0]} x ${newPrice}`
+    number.price = _sumPrice
+}
+
 const isNumberLimit = (number, bet) => {
     let _bType = ''
     let _bet = []
@@ -624,6 +683,7 @@ async function sendPoy() {
     else setSnackBar('red-accent-4', 'ยอดเงินของคุณไม่พอ...')
 
     sending.value = false
+    checkout.value = false
 }
 
 function setPoyList() {
