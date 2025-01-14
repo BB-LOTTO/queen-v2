@@ -121,13 +121,75 @@
                                         <div v-for="(item, i) in numberSelected" class="number-selected-list px-3 mb-5">
                                             <div class="number-selected-header mb-1">
                                                 <span class="me-3 text-medium-emphasis">{{ item.type }} {{ item.trade }}</span>
-                                                <v-btn 
-                                                    density="compact"
-                                                    size="small" 
-                                                    color="red-accent-4" 
-                                                    icon="mdi-close"
-                                                    @click="removeNumberSelected(i)"
-                                                ></v-btn>
+                                                <span class="text-subtitle-2 me-3">
+                                                    <v-tooltip
+                                                        location="top"
+                                                    >
+                                                        <template v-slot:activator="{ props }">
+                                                            <v-btn 
+                                                                v-bind="props"
+                                                                density="compact"
+                                                                size="small" 
+                                                                color="green-darken-4" 
+                                                                icon="mdi-pencil-circle-outline"
+                                                            ></v-btn>
+                                                            
+                                                            <v-menu
+                                                                activator="parent"
+                                                                location="top center"
+                                                                transition="fade-transition"
+                                                                :close-on-content-click="false"
+                                                            >
+                                                                <v-card min-width="300" min-height="60" class="w-25 pt-2">
+                                                                    <v-responsive
+                                                                        class="px-5"
+                                                                        max-width="300"
+                                                                    >
+                                                                        <v-text-field
+                                                                            density="compact"
+                                                                            variant="outlined"
+                                                                            hide-details="auto"
+                                                                            type="number"
+                                                                            label="ยอดแทง (฿)"
+                                                                            hide-spin-buttons
+                                                                            :model-value="item.bet[0].price"
+                                                                            :id="`_input-${i}`"
+                                                                            autofocus
+                                                                            class="py-1"
+                                                                        >
+                                                                            <template v-slot:append>
+                                                                                <v-btn variant="outlined" size="small" prepend-icon="mdi-checkbox-outline" @click="checkoutEdit(i)">
+                                                                                    <template v-slot:prepend>
+                                                                                        <v-icon color="success"></v-icon>
+                                                                                    </template>
+                                                                                    แก้ไข
+                                                                                </v-btn>
+                                                                            </template>
+                                                                        </v-text-field>
+                                                                    </v-responsive>
+                                                                </v-card>
+                                                            </v-menu>
+                                                        </template>
+                                                        <span>แก้ไขยอดแทง</span>
+                                                    </v-tooltip>
+                                                </span>
+                                                <span>
+                                                    <v-tooltip
+                                                        location="top"
+                                                    >
+                                                        <template v-slot:activator="{ props }">
+                                                            <v-btn 
+                                                                v-bind="props"
+                                                                density="compact"
+                                                                size="small" 
+                                                                color="red-accent-4" 
+                                                                icon="mdi-close-circle-outline"
+                                                                @click="removeNumberSelected(i)"
+                                                            ></v-btn>
+                                                        </template>
+                                                        <span>ลบรายการ</span>
+                                                    </v-tooltip>
+                                                </span>
                                             </div>
                                             <div class="number-list-item d-flex flex-wrap">
                                                 <div v-for="(number, k) in item.numbers" class="number-selected">
@@ -361,7 +423,7 @@
                                                                         variant="outlined"
                                                                         hide-details="auto"
                                                                         type="number"
-                                                                        label="ราคา"
+                                                                        label="ยอดแทง (฿)"
                                                                         hide-spin-buttons
                                                                         :model-value="n.bet[0].price"
                                                                         :id="`_input-${k}`"
