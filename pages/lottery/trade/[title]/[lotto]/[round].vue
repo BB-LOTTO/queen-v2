@@ -111,7 +111,7 @@
                                                 <h3>{{ route.params.title }}</h3>
                                             </v-col>
                                             <v-col cols="6" class="text-end">
-                                                <h6>งวดวันที่ {{ lotto_date }}</h6>
+                                                <h6>งวดวันที่ {{ $dateFormat(lotto_date) }}</h6>
                                             </v-col>
                                         </v-row>
                                         <v-divider></v-divider>
