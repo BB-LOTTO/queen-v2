@@ -433,7 +433,7 @@
                         <span class="text-danger">ยกเลิก</span>
                     </v-btn>
 
-                    <v-btn @click="sendPoy">
+                    <v-btn :disabled="sumPrice > _balance" @click="sendPoy">
                         ยืนยัน
                     </v-btn>
                 </template>
