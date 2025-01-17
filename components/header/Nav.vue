@@ -8,7 +8,8 @@
                             <!-- <NuxtLink to="/">
                                 <v-img src="/logo/lotto-logo-wide.png" class="me-4" width="300" aspect-ratio="16/9" />
                             </NuxtLink> -->
-                            <v-img src="/logo/lotto-logo-wide.png" class="me-4" width="300" aspect-ratio="16/9" />
+                            <!-- <v-img src="/logo/lotto-logo-wide.png" class="me-4" width="300" aspect-ratio="16/9" /> -->
+                            <v-img src="/logo/_lottery-logo.webp" class="me-4" width="250" aspect-ratio="16/9" />
                         </v-col>
                         <v-col cols="8" class="d-none d-lg-block">
                             <HeaderMenu />
