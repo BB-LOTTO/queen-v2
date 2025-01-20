@@ -25,7 +25,7 @@
 
             <v-list lines="one" class="mb-3 rounded-xl" color="#c6137f">
                 <v-list-item prepend-icon="mdi-invoice-text-multiple-outline" title="โพยหวย" class="list-item-trade-sidebar" to="/lottery/bill" @click="isOnMobile"></v-list-item>
-                <v-list-item prepend-icon="mdi-text-box-search-outline" class="list-item-trade-sidebar" title="ตรวจรางวัล"></v-list-item>
+                <v-list-item prepend-icon="mdi-text-box-search-outline" class="list-item-trade-sidebar" title="ตรวจรางวัล" to="/lottery/result"></v-list-item>
                 <v-list-item prepend-icon="mdi-alert-octagon-outline" class="list-item-trade-sidebar" title="กฎกติกา" to="/rule" @click="isOnMobile"></v-list-item>
             </v-list>
         </div>
