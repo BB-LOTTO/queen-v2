@@ -7,7 +7,7 @@
             <v-list lines="one" class="mb-3 rounded-xl">
                 <v-list-item prepend-icon="mdi-account-circle" title="ชื่อผู้ใช้">
                     <template v-slot:append>
-                        <p class="font-weight-bold">{{ profile.name || '-' }}</p>
+                        <p class="font-weight-bold">{{ user.name || '-' }}</p>
                     </template>
                 </v-list-item>
 
