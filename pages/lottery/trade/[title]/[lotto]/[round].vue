@@ -121,78 +121,32 @@
                                         <div v-for="(item, i) in numberSelected" class="number-selected-list px-3 mb-5">
                                             <div class="number-selected-header mb-1">
                                                 <span class="me-3 text-medium-emphasis">{{ item.type }} {{ item.trade }}</span>
-                                                <span class="text-subtitle-2 me-3">
-                                                    <v-tooltip
-                                                        location="top"
-                                                    >
-                                                        <template v-slot:activator="{ props }">
-                                                            <v-btn 
-                                                                v-bind="props"
-                                                                density="compact"
-                                                                size="small" 
-                                                                color="green-darken-4" 
-                                                                icon="mdi-pencil-circle-outline"
-                                                            ></v-btn>
-                                                            
-                                                            <v-menu
-                                                                activator="parent"
-                                                                location="top center"
-                                                                transition="fade-transition"
-                                                                :close-on-content-click="false"
-                                                            >
-                                                                <v-card min-width="300" min-height="60" class="w-25 pt-2">
-                                                                    <v-responsive
-                                                                        class="px-5"
-                                                                        max-width="300"
-                                                                    >
-                                                                        <v-text-field
-                                                                            density="compact"
-                                                                            variant="outlined"
-                                                                            hide-details="auto"
-                                                                            type="number"
-                                                                            label="ยอดแทง (฿)"
-                                                                            hide-spin-buttons
-                                                                            :model-value="item.bet[0].price"
-                                                                            :id="`_input-${i}`"
-                                                                            autofocus
-                                                                            class="py-1"
-                                                                        >
-                                                                            <template v-slot:append>
-                                                                                <v-btn variant="outlined" size="small" prepend-icon="mdi-checkbox-outline" @click="checkoutEdit(i)">
-                                                                                    <template v-slot:prepend>
-                                                                                        <v-icon color="success"></v-icon>
-                                                                                    </template>
-                                                                                    แก้ไข
-                                                                                </v-btn>
-                                                                            </template>
-                                                                        </v-text-field>
-                                                                    </v-responsive>
-                                                                </v-card>
-                                                            </v-menu>
-                                                        </template>
-                                                        <span>แก้ไขยอดแทง</span>
-                                                    </v-tooltip>
+                                                <span class="text-subtitle-2 me-2">
+                                                    <LotteryTradeCheckout
+                                                        :n="item"
+                                                        :k="i"
+                                                        @checkout-edit="checkoutEdit"
+                                                        @number-edit="checkoutNumberEdit"
+                                                    ></LotteryTradeCheckout>
                                                 </span>
                                                 <span>
                                                     <v-tooltip
                                                         location="top"
                                                     >
                                                         <template v-slot:activator="{ props }">
-                                                            <v-btn 
-                                                                v-bind="props"
-                                                                density="compact"
-                                                                size="small" 
-                                                                color="red-accent-4" 
-                                                                icon="mdi-close-circle-outline"
+                                                            <v-icon v-bind="props" 
+                                                                icon="mdi-close-box-outline"
+                                                                class="text-red-accent-4 cursor-pointer mt-n1"
                                                                 @click="removeNumberSelected(i)"
-                                                            ></v-btn>
+                                                            >
+                                                            </v-icon>
                                                         </template>
                                                         <span>ลบรายการ</span>
                                                     </v-tooltip>
                                                 </span>
                                             </div>
                                             <div class="number-list-item d-flex flex-wrap">
-                                                <div v-for="(number, k) in item.numbers" class="number-selected">
+                                                <div v-for="(number, k) in item.numbers.sort()" class="number-selected">
                                                     <span v-html="isNumberLimit(number, item.bet)" 
                                                         class="me-5 text-subtitle-1 font-weight-bold text-high-emphasis">
                                                     </span>
@@ -208,7 +162,7 @@
                                                 <p class="text-mitr-400">ยอดรวม</p>
                                             </v-col>
                                             <v-col cols="6" class="text-end">
-                                                <p class="text-mitr-400">{{ sumPrice }} ฿</p>
+                                                <p class="text-mitr-400">{{ $numberFormat(sumPrice) }} ฿</p>
                                             </v-col>
                                         </v-row>
                                     </template>
@@ -387,65 +341,26 @@
                                     class="border-b"
                                 >
                                     <template v-slot:title>
-                                        <p class="text-subtitle-1 font-weight-bold">{{ n.type }}{{ n.trade.split('x')[0] }}</p>
+                                        <p class="text-subtitle-1 font-weight-bold">
+                                            {{ n.type }}{{ n.trade.split('x')[0] }}
+                                            <span class="text-caption">
+                                                x{{ n.bet[0].price }} ฿
+                                                <LotteryTradeCheckout
+                                                    :n="n"
+                                                    :k="k"
+                                                    @checkout-edit="checkoutEdit"
+                                                    @number-edit="checkoutNumberEdit"
+                                                ></LotteryTradeCheckout>
+                                            </span>
+                                        </p>
                                     </template>
                                     <template v-slot:subtitle>
                                         <div class="d-flex justify-space-between align-center">
-                                            <div class="is-number-selected" style="max-width: 60%;">
+                                            <div class="is-number-selected">
                                                 <span v-for="number in n.numbers" class="me-3">
                                                     <strong class="font-weight-bold text-subtitle-2 text-green-darken-4">{{ number }}</strong>
                                                 </span>
                                             </div>
-                                            <span class="text-caption">
-                                                x{{ n.bet[0].price }} ฿
-                                                <v-tooltip
-                                                    location="top"
-                                                >
-                                                    <template v-slot:activator="{ props }">
-                                                        <v-icon v-bind="props" 
-                                                            icon="mdi-pencil-box-outline"
-                                                            class="text-orange-darken-4 cursor-pointer"
-                                                        >
-                                                        </v-icon>
-                                                        <v-menu
-                                                            activator="parent"
-                                                            location="bottom end"
-                                                            transition="fade-transition"
-                                                            :close-on-content-click="false"
-                                                        >
-                                                            <v-card min-width="260" min-height="60" class="pt-2">
-                                                                <v-responsive
-                                                                    class="mx-auto"
-                                                                    max-width="200"
-                                                                >
-                                                                    <v-text-field
-                                                                        density="compact"
-                                                                        variant="outlined"
-                                                                        hide-details="auto"
-                                                                        type="number"
-                                                                        label="ยอดแทง (฿)"
-                                                                        hide-spin-buttons
-                                                                        :model-value="n.bet[0].price"
-                                                                        :id="`_input-${k}`"
-                                                                        autofocus
-                                                                        class="py-1"
-                                                                    >
-                                                                        <template v-slot:append>
-                                                                            <v-btn variant="outlined" size="small" prepend-icon="mdi-checkbox-outline" @click="checkoutEdit(k)">
-                                                                                <template v-slot:prepend>
-                                                                                    <v-icon color="success"></v-icon>
-                                                                                </template>
-                                                                                แก้ไข
-                                                                            </v-btn>
-                                                                        </template>
-                                                                    </v-text-field>
-                                                                </v-responsive>
-                                                            </v-card>
-                                                        </v-menu>
-                                                    </template>
-                                                    <span>แก้ไขยอดแทง</span>
-                                                </v-tooltip>
-                                            </span>
                                         </div>
                                     </template>
                                 </v-list-item>
@@ -532,11 +447,6 @@ const lottoResult = ref([])
 const _result = ref(false)
 const checkout = ref(false)
 const _balance = ref(await useBalance(username))
-
-// setInterval(async() => {
-//     _balance.value = await useBalance(username)
-//     console.log(_balance.value)
-// }, 5000)
 
 const sumPrice = computed(() => {
     let sum = 0
@@ -636,11 +546,54 @@ function setTypeLimit_v2(type, number) {
 function checkoutEdit(key) {
     const input = document.querySelector(`#_input-${key}`)
     const number = numberSelected.value[key]
-    let newPrice = number.bet[0].price = input.value
-    let _sumPrice = number.numbers.length * newPrice
+    const _trade = `${number.trade.split('x')[0]}x ${input.value}`
     
-    number.trade = `${number.trade.split('x')[0]} x ${newPrice}`
-    number.price = _sumPrice
+    const isIndex = numberSelected.value.findIndex((n) => { return n.trade === _trade && n.type === number.type })
+    if(isIndex >= 0) {
+        const _newPrice = number.numbers.length * parseInt(input.value)
+        number.numbers.forEach((n) => { numberSelected.value[isIndex].numbers.push(n) })
+        numberSelected.value[isIndex].price += _newPrice
+        numberSelected.value.splice(key, 1)
+    }
+    else {
+        let newPrice = number.bet[0].price = input.value
+        let _sumPrice = number.numbers.length * newPrice
+        
+        number.trade = `${number.trade.split('x')[0]}x ${newPrice}`
+        number.price = _sumPrice
+    }
+}
+
+async function checkoutNumberEdit(_key, _index) {
+    const input = document.querySelector(`#_input-number-${_index}`)
+    const number = numberSelected.value[_key]
+    const _number = number.numbers[_index]
+    if(number.bet[0].price != input.value) {
+        const _trade = `${number.trade.split('x')[0]}x ${input.value}`
+        const isNumber = numberSelected.value.findIndex((n) => { return n.trade === _trade && n.type === number.type })
+        if(isNumber >= 0) {
+            const getNumber = numberSelected.value[isNumber]
+            getNumber.numbers.push(_number)
+            getNumber.price += parseInt(input.value)
+        }
+        else {
+            let newNumber = []
+            newNumber.bet = [{'multiply': number.bet[0].multiply, 'name': number.bet[0].name, 'price': parseInt(input.value)}]
+            newNumber.limit = number.limit
+            newNumber.numbers = []
+            newNumber.numbers.push(_number)
+            newNumber.price = parseInt(input.value)
+            newNumber.trade = _trade
+            newNumber.type = number.type
+
+            numberSelected.value.push(newNumber)
+        }
+
+        number.numbers.splice(_index, 1)
+        number.price = number.price - number.bet[0].price
+
+        console.log(numberSelected.value)
+    }
 }
 
 const isNumberLimit = (number, bet) => {
