@@ -53,7 +53,7 @@ export default defineNuxtConfig({
         getSession: { path: '/session', method: 'get' }
       },
       pages: {
-        login: '/login'
+        login: '/expired'
       },
       token: { 
         signInResponseTokenPointer: '/token/accessToken',
