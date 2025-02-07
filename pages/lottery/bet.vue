@@ -22,7 +22,7 @@
                 <v-col v-for="lotto in cardList.filter(c => c.status === '1' || c.status === '2')" cols="6" md="3" xl="2">
                     <LotteryBet
                         :title="lotto.lotterys.name"
-                        :subtitle="lotto.betName"
+                        :openDate="lotto.roundFinalDt"
                         :time="$timeFormat(lotto.closeDate)"
                         :closeDate="lotto.closeDate"
                         :bg="lotto.bg"
@@ -34,6 +34,31 @@
                 </v-col>
             </v-row>
         </v-card>
+
+        <v-card
+            class="mx-auto px-2 pa-lg-4 pb-5 mb-8 rounded-xl"
+        >
+            <v-card-title class="px-0">
+                <h2 class="text-mitr pb-1">หวยยี่กี่</h2>
+            </v-card-title>
+
+            <v-row>
+                <v-col v-for="yeekee in yeekeeList.filter(y => y.status === '1' || y.status === '2')" cols="6" md="3" xl="2">
+                    <LotteryBet
+                        :title="yeekee.betName"
+                        :openDate="yeekee.roundFinalDt"
+                        :time="$timeFormat(yeekee.closeDate)"
+                        :closeDate="yeekee.closeDate"
+                        :bg="yeekee.bg"
+                        :image="yeekee.image"
+                        :roundId="yeekee.roundId"
+                        :lotteryId="yeekee.lotteryId"
+                        :status="yeekee.status"
+                    ></LotteryBet>
+                </v-col>
+            </v-row>
+        </v-card>
+
         <v-overlay
             :model-value="overlay"
             class="align-center justify-center"
@@ -53,6 +78,7 @@ definePageMeta({
 })
 
 const cardList = ref([])
+const yeekeeList = ref([])
 const overlay = ref(false)
 
 onMounted(async() => {
@@ -64,8 +90,8 @@ async function getCardList() {
     try {
         const res = await $fetch('/api/lottery/cardList')
 
-        if(res.data.lottery) sortCardList(res.data.lottery)
-        else cardList.value = []
+        cardList.value = res.data.lottery.length > 0 ? sortCardList(res.data.lottery) : []
+        yeekeeList.value = res.data.yeekee.length > 0 ? sortCardList(res.data.yeekee) : []
 
     } catch(error) {
         navigateTo('/expired')
@@ -90,6 +116,6 @@ function sortCardList(lottery) {
 
     if(open.length > 0) open.forEach(o => { _lottery.unshift(o) })
 
-    cardList.value = _lottery
+    return _lottery
 }
 </script>

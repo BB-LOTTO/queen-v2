@@ -4,7 +4,7 @@ export default defineEventHandler(async(event) => {
     const _header = await setHeader(event)
 
     try {
-        const response:any = await $fetch('/queen/resultNumbersRoundList', {
+        const response:any = await $fetch('/gaming/resultNumbersRoundList', {
             baseURL: useRuntimeConfig().apiBase,
             headers: _header
         })

@@ -1,11 +1,13 @@
 <template>
     <NuxtLayout name="header">
         <template #sub-title>
-            งวดวันที่ {{ $dateFormat(lotto_date) }} 
-            <span v-if="lotto_status === 1">
-                ปิดรับ {{ lotto_time }}
-            </span>
-            <span v-else>ปิดรับแล้ว</span>
+            <div class="mb-2">
+                งวดวันที่ {{ $dateFormat(lotto_date) }} 
+                <span v-if="lotto_status === 1">
+                    ปิดรับ {{ lotto_time }}
+                </span>
+                <span v-else>ปิดรับแล้ว</span>
+            </div>
         </template>
         <template #title>{{ route.params.title }}</template>
     </NuxtLayout>
@@ -828,7 +830,7 @@ async function getNumberLimit() {
         if(res.data) numberLimit.value = res.data
         else numberLimit.value = []
     } catch(error) {
-        console.log(error)
+        // console.log(error)
     }
 }
 

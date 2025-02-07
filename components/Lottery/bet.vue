@@ -24,7 +24,7 @@
         <template v-slot:subtitle>
             <p class="text-mitr-400 d-block d-lg-flex text-center text-lg-start text-grey-darken-4">
                 <p class="me-2">งวดวันที่</p> 
-                <p>{{ $dateFormat(lotteryDate(props.subtitle)) }}</p>
+                <p>{{ $dateFormat(lotteryDate(props.openDate)) }}</p>
             </p>
         </template>
 
@@ -73,7 +73,7 @@
 
 
 <script setup>
-const props = defineProps(['title', 'subtitle', 'image', 'time', 'bg', 'color', 'roundId', 'lotteryId', 'status', 'closeDate'])
+const props = defineProps(['title', 'openDate', 'image', 'time', 'bg', 'color', 'roundId', 'lotteryId', 'status', 'closeDate'])
 const color = props.color ?? 'transparent'
 const countdown = ref('')
 
@@ -88,14 +88,14 @@ function setDateTimeCookie() {
     const lotto_time = useCookie('lotto_time')
     const lotto_status = useCookie('l_s')
 
-    lotto_date.value = props.subtitle
+    lotto_date.value = props.openDate
     lotto_time.value = props.time
     lotto_status.value = props.status
 }
 
 const lotteryDate = (date) => {
     const _date = date.split(' ')
-    return _date[1]
+    return _date[0]
 }
 
 const dateTimeCountdown = (date) => {
