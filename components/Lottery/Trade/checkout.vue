@@ -29,10 +29,12 @@
                             hide-spin-buttons
                             :model-value="_number.bet[0].price"
                             :id="`_input-${_k}`"
+                            :rules="[ v => !!v || 'กรุณาระบุ' ]"
+                            @input="updateValue(_number.bet[0].price, _k)"
                             class="py-2 border-b-md"
                         >
                             <template v-slot:append>
-                                <v-btn variant="outlined" size="small" prepend-icon="mdi-checkbox-outline" @click="updateCheckout(_k)">
+                                <v-btn :disabled="betDisable" variant="outlined" size="small" prepend-icon="mdi-checkbox-outline" @click="updateCheckout(_k)">
                                     <template v-slot:prepend>
                                         <v-icon color="success"></v-icon>
                                     </template>
@@ -61,10 +63,16 @@
                                             hide-spin-buttons
                                             :model-value="_number.bet[0].price"
                                             :id="`_input-number-${i}`"
+                                            :rules="[ v => !!v || 'กรุณาระบุ' ]"
                                             class="py-1"
                                         >
                                             <template v-slot:append>
-                                                <v-icon color="success" @click="updateNumberCheckout(_k, i)">mdi-checkbox-outline</v-icon>
+                                                <v-tooltip location="top">
+                                                    <template v-slot:activator="{ props }">
+                                                        <v-icon v-bind="props" color="success" @click="updateNumberCheckout(_k, i)">mdi-checkbox-outline</v-icon>
+                                                    </template>
+                                                    <span>แก้ไขยอดแทงเลข {{ number }}</span>
+                                                </v-tooltip>
                                             </template>
                                         </v-text-field>
                                     </v-col>
@@ -83,6 +91,7 @@
 <script setup>
 const props = defineProps(['n', 'k'])
 const emit = defineEmits(['checkoutEdit', 'numberEdit'])
+const betDisable = ref(true)
 
 const _number = ref(props.n)
 const _k = ref(props.k)
@@ -91,17 +100,26 @@ const rowReload = ref(true)
 async function updateCheckout(k) {
     emit('checkoutEdit', k)
     await reloadRow()
+    betDisable.value = true
 }
 
 async function updateNumberCheckout(k, i) {
-    emit('numberEdit', k, i)
-    await reloadRow()
+    const input = document.querySelector(`#_input-number-${i}`).value
+    if(input !== '') {
+        emit('numberEdit', k, i)
+        await reloadRow()
+    }
 }
 
 async function reloadRow() {
     rowReload.value = false
     await nextTick()
     rowReload.value = true
+}
+
+function updateValue(_input, _k) {
+    const new_input = document.querySelector(`#_input-${_k}`).value
+    betDisable.value = parseInt(new_input) === parseInt(_input) || new_input === '' ? true : false
 }
 </script>
 
