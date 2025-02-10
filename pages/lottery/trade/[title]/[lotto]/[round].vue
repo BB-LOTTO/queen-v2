@@ -593,8 +593,6 @@ async function checkoutNumberEdit(_key, _index) {
 
         number.numbers.splice(_index, 1)
         number.price = number.price - number.bet[0].price
-
-        console.log(numberSelected.value)
     }
 }
 
@@ -734,9 +732,10 @@ function setPoyList() {
 
 function convertPoyType(type, id, on, bottom) {
     const lotto = lottoList.value
+    const _lotto = Object.keys(lotto).length
     if(type === 'วิ่ง') {
-        if(on !== '' && id === 'บน') return [{ name: 'teng_bon_1',  multiply: lotto.teng_bon_1.multiply, price: on }]
-        if(bottom !== '' && id === 'ล่าง') return [{ name: 'teng_lang_1', multiply: lotto.teng_lang_1.multiply, price: bottom }]
+        if(on !== '' && id === 'บน') return [{ name: 'teng_bon_1',  multiply: _lotto > 0 ? lotto.teng_bon_1.multiply : 0, price: on }]
+        if(bottom !== '' && id === 'ล่าง') return [{ name: 'teng_lang_1', multiply: _lotto > 0 ? lotto.teng_lang_1.multiply : 0, price: bottom }]
 
         // if(on !== '' && bottom !== '') {
         //     return [
@@ -752,8 +751,8 @@ function convertPoyType(type, id, on, bottom) {
     }
 
     if(type === '2 ตัว') {
-        if(on !== '' && id === 'บน') return [{ name: 'teng_bon_2', multiply: lotto.teng_bon_2.multiply, price: on }]
-        if(bottom !== '' && id === 'ล่าง') return [{ name: 'teng_lang_2', multiply: lotto.teng_lang_2.multiply, price: bottom }]
+        if(on !== '' && id === 'บน') return [{ name: 'teng_bon_2', multiply: _lotto > 0 ? lotto.teng_bon_2.multiply : 0, price: on }]
+        if(bottom !== '' && id === 'ล่าง') return [{ name: 'teng_lang_2', multiply: _lotto > 0 ? lotto.teng_lang_2.multiply : 0, price: bottom }]
 
         // if(on !== '' && bottom !== '') {
         //     return [
@@ -768,8 +767,8 @@ function convertPoyType(type, id, on, bottom) {
     }
 
     if(type === '3 ตัว') {
-        if(on !== '' && id === 'บน') return [{ name: 'teng_bon_3', multiply: lotto.teng_bon_3.multiply, price: on }]
-        if(bottom !== '' && id === 'ล่าง') return [{ name: 'tode_3', multiply: lotto.tode_3.multiply, price: bottom }]
+        if(on !== '' && id === 'บน') return [{ name: 'teng_bon_3', multiply: _lotto > 0 ? lotto.teng_bon_3.multiply : 0, price: on }]
+        if(bottom !== '' && id === 'ล่าง') return [{ name: 'tode_3', multiply: _lotto > 0 ? lotto.tode_3.multiply : 0, price: bottom }]
         // if(on !== '' && bottom !== '') {
         //     return [
         //         { name: 'teng_bon_3', multiply: lotto.teng_bon_3.multiply, price: on },
