@@ -19,7 +19,7 @@
             </v-card-title>
 
             <v-row>
-                <v-col v-for="lotto in cardList.filter(c => c.status === '1' || c.status === '2')" cols="6" md="3" xl="2">
+                <v-col v-for="lotto in cardList.filter(c => c.status === '1' || c.status === '2')" cols="6" md="3" xl="3">
                     <LotteryBet
                         :title="lotto.lotterys.name"
                         :openDate="lotto.roundFinalDt"
@@ -43,7 +43,7 @@
             </v-card-title>
 
             <v-row>
-                <v-col v-for="yeekee in yeekeeList.filter(y => y.status === '1' || y.status === '2')" cols="6" md="3" xl="2">
+                <v-col v-for="yeekee in yeekeeList.filter(y => y.status === '1' || y.status === '2')" cols="6" md="3" xl="3">
                     <LotteryBet
                         :title="yeekee.betName"
                         :openDate="yeekee.roundFinalDt"

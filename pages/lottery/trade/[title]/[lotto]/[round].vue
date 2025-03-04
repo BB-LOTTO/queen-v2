@@ -19,11 +19,16 @@
             <v-col cols="12" lg="9">
                 <v-row>
                     <v-col cols="12 mb-6">
+                        <LotteryTradeTypeList
+                            :lottoLists="Object.entries(lottoList)"
+                            :lottoCount="lottoCount"
+                            @to-add-poy-list="addPoyList"
+                        ></LotteryTradeTypeList>
                         <v-card
                             variant="flat"
                             class="rounded-xl"
                         >
-                            <template v-slot:title>
+                            <!-- <template v-slot:title>
                                 <v-tabs
                                     v-model="tab"
                                     color="#c6137f"
@@ -36,10 +41,10 @@
                                     <v-tab :value="5">6 กลับ</v-tab>
                                     <v-tab :value="6">ตัวช่วย</v-tab>
                                 </v-tabs>
-                            </template>
+                            </template> -->
 
                             <template v-slot:text>
-                                <v-window v-model="tab">
+                                <!-- <v-window v-model="tab">
                                     <v-window-item :value="1"
                                         class="mt-3"
                                     >
@@ -104,7 +109,7 @@
                                             @someting-wrong="setSnackBar"
                                         ></LotteryTradeHelper>
                                     </v-window-item>
-                                </v-window>
+                                </v-window> -->
 
                                 <v-card variant="tonal" color="light-blue-darken-3 mb-5">
                                     <template v-slot:title>
@@ -120,16 +125,16 @@
                                     </template>
                                     
                                     <template v-slot:text style="min-height: 200px;">
-                                        <div v-for="(item, i) in numberSelected" class="number-selected-list px-3 mb-5">
+                                        <div v-for="(item, i) in poy" :key="i" class="number-selected-list px-3 mb-5">
                                             <div class="number-selected-header mb-1">
-                                                <span class="me-3 text-medium-emphasis">{{ item.type }} {{ item.trade }}</span>
+                                                <span class="me-3 text-medium-emphasis">{{ item.name }} x {{ item.price }}</span>
                                                 <span class="text-subtitle-2 me-2">
-                                                    <LotteryTradeCheckout
+                                                    <LotteryTradeCheckoutPoy
                                                         :n="item"
                                                         :k="i"
                                                         @checkout-edit="checkoutEdit"
                                                         @number-edit="checkoutNumberEdit"
-                                                    ></LotteryTradeCheckout>
+                                                    ></LotteryTradeCheckoutPoy>
                                                 </span>
                                                 <span>
                                                     <v-tooltip
@@ -148,8 +153,8 @@
                                                 </span>
                                             </div>
                                             <div class="number-list-item d-flex flex-wrap">
-                                                <div v-for="(number, k) in item.numbers.sort()" class="number-selected">
-                                                    <span v-html="isNumberLimit(number, item.bet)" 
+                                                <div v-for="(number, k) in item.number.sort()" :key="k" class="number-selected">
+                                                    <span v-html="poyNumberLimit(number, item.type)" 
                                                         class="me-5 text-subtitle-1 font-weight-bold text-high-emphasis">
                                                     </span>
                                                 </div>
@@ -164,7 +169,7 @@
                                                 <p class="text-mitr-400">ยอดรวม</p>
                                             </v-col>
                                             <v-col cols="6" class="text-end">
-                                                <p class="text-mitr-400">{{ $numberFormat(sumPrice) }} ฿</p>
+                                                <p class="text-mitr-400">{{ $numberFormat(_sumPrice) }} ฿</p>
                                             </v-col>
                                         </v-row>
                                     </template>
@@ -172,15 +177,15 @@
 
                                 <v-sheet class="text-center">
                                     <v-form>
-                                        <v-text-field
+                                        <!-- <v-text-field
                                             density="compact"
                                             variant="outlined"
                                             v-model="note"
                                             label="note"
-                                        ></v-text-field>
+                                        ></v-text-field> -->
                                         <v-btn 
                                             v-if="!sending" 
-                                            :disabled="numberSelected.length === 0 && lotto_status !== '1'"
+                                            :disabled="poy.length === 0 && lotto_status !== '1'"
                                             prepend-icon="mdi-invoice-text-send-outline" 
                                             color="orange-darken-1" 
                                             @click="checkout = true"
@@ -339,27 +344,27 @@
                             <h6 class="text-h6">เลขที่คุณเลือก</h6>
                             <v-list lines="one" class="pt-0 border rounded px-1">
                                 <v-list-item
-                                    v-for="(n, k) in numberSelected"
+                                    v-for="(n, k) in poy"
                                     class="border-b"
                                 >
                                     <template v-slot:title>
                                         <p class="text-subtitle-1 font-weight-bold">
-                                            {{ n.type }}{{ n.trade.split('x')[0] }}
+                                            {{ n.name }}
                                             <span class="text-caption">
-                                                x{{ n.bet[0].price }} ฿
-                                                <LotteryTradeCheckout
+                                                x{{ n.price }} ฿
+                                                <LotteryTradeCheckoutPoy
                                                     :n="n"
                                                     :k="k"
                                                     @checkout-edit="checkoutEdit"
                                                     @number-edit="checkoutNumberEdit"
-                                                ></LotteryTradeCheckout>
+                                                ></LotteryTradeCheckoutPoy>
                                             </span>
                                         </p>
                                     </template>
                                     <template v-slot:subtitle>
                                         <div class="d-flex justify-space-between align-center">
                                             <div class="is-number-selected">
-                                                <span v-for="number in n.numbers" class="me-3">
+                                                <span v-for="number in n.number" class="me-3">
                                                     <strong class="font-weight-bold text-subtitle-2 text-green-darken-4">{{ number }}</strong>
                                                 </span>
                                             </div>
@@ -388,13 +393,13 @@
                                     <div class="d-flex justify-space-between border-b mb-1 pb-1">
                                         <p>ยอดรวมโพย</p>
                                         <p>
-                                            <small class="font-weight-bold">{{ $numberFormat(sumPrice) }}</small> ฿
+                                            <small class="font-weight-bold">{{ $numberFormat(_sumPrice) }}</small> ฿
                                         </p>
                                     </div>
                                     <div class="d-flex justify-space-between">
                                         <p>ยอดเงินคงเหลือ</p>
                                         <p>
-                                            <small class="font-weight-bold">{{ $numberFormat(amountSummary(_balance, sumPrice)) }}</small> ฿
+                                            <small class="font-weight-bold">{{ $numberFormat(amountSummary(_balance, _sumPrice)) }}</small> ฿
                                         </p>
                                     </div>
                                 </v-card-text>
@@ -412,7 +417,7 @@
                         <span class="text-danger">ยกเลิก</span>
                     </v-btn>
 
-                    <v-btn :disabled="sumPrice > _balance" @click="sendPoy">
+                    <v-btn :disabled="_sumPrice > _balance" @click="sendPoy">
                         ยืนยัน
                     </v-btn>
                 </template>
@@ -432,8 +437,10 @@ const route = useRoute()
 
 const tab = ref()
 const numberSelected = ref([])
+const poy = ref([])
 const note = ref('')
 const lottoList = ref([])
+const lottoCount = ref([])
 const numberLimit = ref([])
 const username = data.value.user.username
 const sending = ref(false)
@@ -457,11 +464,61 @@ const sumPrice = computed(() => {
     return sum - _discount
 })
 
+const _sumPrice = computed(() => {
+    let sum = 0
+    let discount = 0
+    poy.value.forEach(p => { 
+        sum += parseInt(p.price) * p.number.length
+        if(p.limit.length > 0) {
+            p.limit.forEach(l => { if(l.type === 2) discount += parseInt(p.price) })
+        }
+    })
+
+    return sum - discount
+})
+
 onMounted(() => {
     getBetRound()
     getNumberLimit()
     getRoundResult()
 })
+
+function addPoyList(payload) {
+    let _num = []
+    
+    const _isHas = poy.value.findIndex(p => { return p.type === payload.type && p.price === parseInt(payload.price) })
+    const _lotto = Object.entries(lottoList.value).find(l => { return l[0] === payload.type })
+    if(_isHas < 0) {
+        payload.number.forEach(n => { _num.push(n) })
+        poy.value.push({
+            'type': payload.type, 
+            'number': _num, 
+            'price': parseInt(payload.price), 
+            'name': _lotto[1].name, 
+            'multiply': _lotto[1].multiply,
+        })
+
+        addPoyNumberLimit()
+    }
+    else {
+        payload.number.forEach(n => { poy.value[_isHas].number.push(n) })
+        addPoyNumberLimit(_isHas)
+    }
+    
+}
+
+function addPoyNumberLimit(index = null) {
+    const nLimit = Object.entries(numberLimit.value)
+    const Indx = index !== null ? index : poy.value.findIndex(p => { return p.limit === undefined })
+    poy.value[Indx].limit = []
+    const limit = nLimit.find(nl => { return nl[0] === poy.value[Indx].type })
+    if(limit) {
+        poy.value[Indx].number.forEach(pn => {
+            const _limit = limit[1].find(l1 => { return l1.type !== 0 && l1.number === pn })
+            if(_limit) poy.value[Indx].limit.push({limit: _limit.number, type: _limit.type})
+        })
+    }
+}
 
 function addNumber(numbers, number_on, number_bottom, type) {
     if(numbers.length > 0) {
@@ -502,8 +559,8 @@ function addNumber(numbers, number_on, number_bottom, type) {
 }
 
 function removeNumberSelected(index) {
-    discount.value = [0]
-    numberSelected.value.splice(index, 1)
+    // discount.value = [0]
+    poy.value.splice(index, 1)
 }
 
 function setNumberLimit() {
@@ -547,53 +604,73 @@ function setTypeLimit_v2(type, number) {
 
 function checkoutEdit(key) {
     const input = document.querySelector(`#_input-${key}`)
-    const number = numberSelected.value[key]
-    const _trade = `${number.trade.split('x')[0]}x ${input.value}`
+    const number = poy.value[key]
+    // const _trade = `${number.trade.split('x')[0]}x ${input.value}`
     
-    const isIndex = numberSelected.value.findIndex((n) => { return n.trade === _trade && n.type === number.type })
+    const isIndex = poy.value.findIndex((n) => { return n.type === number.type && n.price === parseInt(input.value) })
     if(isIndex >= 0) {
-        const _newPrice = number.numbers.length * parseInt(input.value)
-        number.numbers.forEach((n) => { numberSelected.value[isIndex].numbers.push(n) })
-        numberSelected.value[isIndex].price += _newPrice
-        numberSelected.value.splice(key, 1)
+        // const _newPrice = number.number.length * parseInt(input.value)
+        number.number.forEach((n) => { poy.value[isIndex].number.push(n) })
+        // poy.value[isIndex].price += _newPrice
+        poy.value.splice(key, 1)
     }
     else {
-        let newPrice = number.bet[0].price = input.value
-        let _sumPrice = number.numbers.length * newPrice
+        number.price = parseInt(input.value)
+        // let newPrice = number.price = input.value
+        // let _sumPrice = number.number.length * newPrice
         
-        number.trade = `${number.trade.split('x')[0]}x ${newPrice}`
-        number.price = _sumPrice
+        // number.trade = `${number.trade.split('x')[0]}x ${newPrice}`
+        // number.type = 
+        // number.price = _sumPrice
     }
 }
 
 async function checkoutNumberEdit(_key, _index) {
     const input = document.querySelector(`#_input-number-${_index}`)
-    const number = numberSelected.value[_key]
-    const _number = number.numbers[_index]
-    if(number.bet[0].price != input.value) {
-        const _trade = `${number.trade.split('x')[0]}x ${input.value}`
-        const isNumber = numberSelected.value.findIndex((n) => { return n.trade === _trade && n.type === number.type })
+    const number = poy.value[_key]
+    const _number = number.number[_index]
+    if(number.price != input.value) {
+        // const _trade = `${number.trade.split('x')[0]}x ${input.value}`
+        const isNumber = poy.value.findIndex((n) => { return n.type === number.type && n.price === parseInt(input.value) })
         if(isNumber >= 0) {
-            const getNumber = numberSelected.value[isNumber]
-            getNumber.numbers.push(_number)
-            getNumber.price += parseInt(input.value)
+            const getNumber = poy.value[isNumber]
+            getNumber.number.push(_number)
+            // getNumber.price = parseInt(input.value)
         }
         else {
             let newNumber = []
-            newNumber.bet = [{'multiply': number.bet[0].multiply, 'name': number.bet[0].name, 'price': parseInt(input.value)}]
+            // newNumber.bet = [{'multiply': number.bet[0].multiply, 'name': number.bet[0].name, 'price': parseInt(input.value)}]
             newNumber.limit = number.limit
-            newNumber.numbers = []
-            newNumber.numbers.push(_number)
+            newNumber.number = []
+            newNumber.number.push(_number)
             newNumber.price = parseInt(input.value)
-            newNumber.trade = _trade
+            // newNumber.trade = _trade
             newNumber.type = number.type
+            newNumber.name = number.name
 
-            numberSelected.value.push(newNumber)
+            poy.value.push(newNumber)
         }
 
-        number.numbers.splice(_index, 1)
-        number.price = number.price - number.bet[0].price
+        number.number.splice(_index, 1)
+        // number.price = number.price - number.price
     }
+
+    // console.log(poy.value)
+}
+
+const poyNumberLimit = (number, type) => {
+    const limit = Object.entries(numberLimit.value)
+    const _limit = limit.find(l => { return l[0] === type })
+    if(_limit) {
+        const _num = _limit[1].find(n => { return n.number === number && n.type !== 0 })
+        if(_num) {
+            return _num.type === 2 ? 
+                    `<s class="text-num-close">${number}</s>` : 
+                    `<u class="text-num-half">${number}</u>`
+        }
+    }
+
+    return number
 }
 
 const isNumberLimit = (number, bet) => {
@@ -664,7 +741,7 @@ function checkType(type) {
 
 async function checkBalanceSupport() {
     const balance = await useBalance(username)
-    return sumPrice.value <= balance ? true : false
+    return _sumPrice.value <= balance ? true : false
 }
 
 async function sendPoy() {
@@ -682,9 +759,9 @@ async function sendPoy() {
 
             if(res.status === 'OK') {
                 setDialog('mdi-check-circle-outline', 'green-accent-4', 'ทำรายการสำเร็จ', 'ส่งโพยของคุณเรียบร้อยแล้ว...ขอให้โชคดี!')
-                numberSelected.value = []
+                poy.value = []
                 billReload.value.getBill()
-                discount.value = [0]
+                // discount.value = [0]
             }
             else {
                 setSnackBar('red-accent-4', 'เกิดข้อผิดพลาด กรุณาลองใหม่...')
@@ -703,18 +780,24 @@ async function sendPoy() {
 
 function setPoyList() {
     let poylist = []
-    numberSelected.value.forEach(item => {
-        item.numbers.forEach(num => {
+    poy.value.forEach(item => {
+        item.number.forEach(num => {
             let limit = item.limit.length > 0 ? item.limit.findIndex(l => { return l.limit === num && l.type === 2}) : -1
             if(limit < 0) {
-                item.bet.forEach(bet => {
-                    poylist.push({
-                        name: bet.name,
-                        number: num,
-                        multiply: bet.multiply,
-                        price: bet.price
-                    })
+                poylist.push({
+                    name: item.type,
+                    number: num,
+                    multiply: item.multiply,
+                    price: item.price
                 })
+                // item.bet.forEach(bet => {
+                //     poylist.push({
+                //         name: bet.name,
+                //         number: num,
+                //         multiply: bet.multiply,
+                //         price: bet.price
+                //     })
+                // })
             }
         })
     })
@@ -811,6 +894,11 @@ async function getBetRound() {
         })
 
         lottoList.value = res.data.datas
+        const _l = Object.entries(lottoList.value)
+        _l.forEach(item => { 
+            const _i = item[0].split('_')
+            lottoCount.value.push(_i[_i.length -1])
+        })
     } catch(error) {
         console.log(error)
     }

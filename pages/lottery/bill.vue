@@ -132,6 +132,21 @@
                                                 <td class="text-start">{{ $dateFormat(item.gameRoundId.name.split(' ')[1]) }}</td>
                                                 <td class="text-center">{{ $numberFormat(item.betAmount) }}.-</td>
                                                 <td class="text-center">{{ item.sumResult ?? '-' }}</td>
+                                                <td class="text-center">
+                                                    <v-tooltip v-if="item.status === '0'" text="ยกเลิกโพย">
+                                                        <template v-slot:activator="{ props }">
+                                                            <v-icon 
+                                                                v-bind="props" 
+                                                                color="error" 
+                                                                icon="mdi-delete-circle-outline"
+                                                                class="cursor-pointer"
+                                                                @click="confirmCancelPoy(item.billId)"
+                                                            ></v-icon>
+                                                        </template>
+                                                    </v-tooltip>
+                                                    <small v-else-if="item.status === '2'" class="text-blue-grey-darken-1">ยกเลิกแล้ว</small>
+                                                    <span v-else>-</span>
+                                                </td>
                                             </tr>
                                         </template>
                                     </v-data-table>
@@ -182,6 +197,22 @@
                                                             <p class="text-subtitle-1 font-weight-bold text-grey-lighten-1">ผลลัพท์</p>
                                                             {{ item.sumResult ?? '-' }}
                                                         </v-col>
+                                                        <v-col cols="12" class="pa-0 text-end">
+                                                            <v-tooltip v-if="item.status === '0'" text="ยกเลิกโพย">
+                                                                <template v-slot:activator="{ props }">
+                                                                    <v-icon 
+                                                                        v-bind="props" 
+                                                                        size="x-large"
+                                                                        color="error" 
+                                                                        icon="mdi-delete-circle-outline"
+                                                                        class="cursor-pointer"
+                                                                        @click="confirmCancelPoy(item.billId)"
+                                                                    ></v-icon>
+                                                                </template>
+                                                            </v-tooltip>
+                                                            <span v-else-if="item.status === '2'" class="text-blue-grey-darken-2">ยกเลิกแล้ว</span>
+                                                            <span v-else>-</span>
+                                                        </v-col>
                                                     </v-row>
                                                 </td>
                                             </tr>
@@ -216,6 +247,77 @@
                 indeterminate
             ></v-progress-circular>
         </v-overlay>
+
+        <v-dialog
+            v-model="confirm"
+            max-width="400"
+        >
+            <v-card>
+                <template v-slot:title>
+                    <v-row>
+                        <v-col cols="10">
+                            <span class="text-mitr-400">ยืนยันการยกเลิกโพย?</span>
+                        </v-col>
+                        <v-col cols="2" class="text-end">
+                            <v-icon icon="mdi-close" title="ยกเลิก" @click="confirm = false"></v-icon>
+                        </v-col>
+                    </v-row>
+                </template>
+                <template v-slot:text>
+                    <v-card variant="outlined" color="grey-darken-1">
+                        <template v-slot:text>
+                            <v-row class="border-b">
+                                <v-col cols="4" class="font-weight-bold">เลขที่</v-col>
+                                <v-col cols="8" class="text-end">{{ cancel_bill.billId }}</v-col>
+                            </v-row>
+                            <v-row class="border-b">
+                                <v-col cols="4" class="font-weight-bold">งวดวันที่</v-col>
+                                <v-col cols="8" class="text-end">{{ $dateFormat(cancel_bill.gameRoundId.name.split(' ')[1]) }}</v-col>
+                            </v-row>
+                            <v-row class="border-b">
+                                <v-col cols="4" class="font-weight-bold">วันที่ซื้อ</v-col>
+                                <v-col cols="8" class="text-end">{{ $dateFormat(cancel_bill.createdDt) }} <small>{{ $timeFormat(cancel_bill.createdDt) }}</small></v-col>
+                            </v-row>
+                            <v-row class="border-b">
+                                <v-col cols="4" class="font-weight-bold">ยอดซื้อ (฿)</v-col>
+                                <v-col cols="8" class="text-end">{{ $numberFormat(cancel_bill.betAmount) }}.-</v-col>
+                            </v-row>
+                        </template>
+                    </v-card>
+                </template>
+                <template v-slot:actions>
+                    <v-spacer></v-spacer>
+
+                    <v-btn @click="confirm = false">
+                        ยกเลิก
+                    </v-btn>
+
+                    <v-btn @click="cancelPoy(cancel_bill.billId)" class="text-red-darken-4">
+                        ยืนยัน
+                    </v-btn>
+                </template>
+            </v-card>
+        </v-dialog>
+
+        <v-dialog
+            v-model="dialog_result"
+            width="auto"
+        >
+            <v-card
+                max-width="400"
+                :prepend-icon="dialog.icon"
+                :color="dialog.color"
+                :title="dialog.title"
+            >
+                <template v-slot:actions>
+                    <v-btn
+                        class="ms-auto"
+                        text="Ok"
+                        @click="dialog_result = false"
+                    ></v-btn>
+                </template>
+            </v-card>
+        </v-dialog>
     </v-container>
 </template>
 
@@ -235,6 +337,9 @@ const billDetailHeader = ref('')
 const btnSearchLoading = ref(false)
 const billLoading = ref(false)
 const overlay = ref(false)
+const confirm = ref(false)
+const dialog_result = ref(false)
+const dialog = ref({'title': '', 'color': '', 'icon': ''})
 const dateSelection = ref()
 const _selection = ['วันนี้', 'เมื่อวาน', 'สัปดาห์นี้', 'สัปดาห์ที่แล้ว', 'เดือนนี้', 'เดือนที่แล้ว']
 const bill_headers = ref([
@@ -243,9 +348,11 @@ const bill_headers = ref([
             { title: 'ประเภท', sortable: false, align: 'start' },
             { title: 'งวดวันที่', sortable: false, align: 'start' },
             { title: 'ยอด (฿)', sortable: false, align: 'center' },
-            { title: 'ผลลัพท์', sortable: false, align: 'center' }
+            { title: 'ผลลัพท์', sortable: false, align: 'center' },
+            { title: 'จัดการ', sortable: false, align: 'center' }
         ])
 const date_now = new Date()
+const cancel_bill = ref('')
 
 onMounted(async() => {
     await setDateNow()
@@ -359,6 +466,37 @@ async function showBillDetail(bill_id, dateTime, amount, type, type_date, status
     const bills = {billId: bill_id, dateTime: dateTime, amount: amount, type: type, date: type_date, status: status, sumResult: sum}
     billDetailHeader.value = bills
     _billDetail.value = true
+}
+
+async function confirmCancelPoy(bill_id) {
+    cancel_bill.value = bills.value.find(b => { return b.billId === bill_id })
+    confirm.value = true
+}
+
+async function cancelPoy(bill_id) {
+    try {
+        const res = await $fetch('/api/history/cancelPoy', {
+            method: 'POST',
+            body: { 'billId': bill_id }
+        })
+
+        if(res.status === 'OK') {
+            dialog_result.value = true
+            dialog.value.title = 'ลบโพยเรียบร้อย...'
+            dialog.value.color = 'green-darken-1'
+            dialog.value.icon = 'mdi-check'
+        }
+    }
+    catch(error) {
+        dialog_result.value = true
+        dialog.value.title = 'ไม่สามารถยกเลิกโพยได้...'
+        dialog.value.color = 'red-lighten-2'
+        dialog.value.icon = 'mdi-close'
+    }
+    finally {
+        confirm.value = false
+        getBill()
+    }
 }
 
 async function getBillDetail(bill_id) {
